@@ -1,5 +1,5 @@
 [package]
-name = "tax-utils"
+name = "t-utils"
 version = "0.1.0"
 edition = "2021"
 
