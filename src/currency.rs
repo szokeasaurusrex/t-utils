@@ -12,7 +12,10 @@ pub struct Currency<T>(i64, PhantomData<T>)
 where
     T: CurrencyType;
 
+#[derive(Debug, Eq, PartialEq)]
 pub struct EUR;
+
+#[derive(Debug, Eq, PartialEq)]
 pub struct USD;
 
 impl CurrencyType for EUR {

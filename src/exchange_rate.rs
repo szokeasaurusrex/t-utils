@@ -1,7 +1,7 @@
 use crate::currency::CurrencyType;
 use std::marker::PhantomData;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ExchangeRate<T, F>(
     pub f64,
     std::marker::PhantomData<T>,

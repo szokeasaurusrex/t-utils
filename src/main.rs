@@ -1,4 +1,5 @@
 mod currency;
+mod daily_exchange_rates;
 mod exchange_rate;
 mod transaction;
 
