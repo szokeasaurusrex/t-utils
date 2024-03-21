@@ -1,8 +1,4 @@
-use std::{
-    fmt::Display,
-    marker::PhantomData,
-    ops::{Add, Mul, Sub},
-};
+use std::{fmt::Display, marker::PhantomData};
 
 pub trait CurrencyType {}
 
@@ -64,38 +60,5 @@ where
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {}", T::symbol(), self.0 as f64 / 100.0)
-    }
-}
-
-impl<T> Add for Currency<T>
-where
-    T: CurrencyType,
-{
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Currency::new(self.0 + rhs.0)
-    }
-}
-
-impl<T> Sub for Currency<T>
-where
-    T: CurrencyType,
-{
-    type Output = Self;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        Currency::new(self.0 - rhs.0)
-    }
-}
-
-impl<T> Mul<i64> for Currency<T>
-where
-    T: CurrencyType,
-{
-    type Output = Self;
-
-    fn mul(self, rhs: i64) -> Self::Output {
-        Currency::new(self.0 * rhs)
     }
 }
