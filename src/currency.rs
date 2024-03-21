@@ -1,12 +1,10 @@
 use std::{fmt::Display, marker::PhantomData};
 
-pub trait CurrencyType {}
+pub trait CurrencyType {
+    fn formatter(raw_amount: i64) -> String;
+}
 
 trait CentCurrency: CurrencyType {}
-
-pub trait PrependSymbolCurrency: CurrencyType {
-    fn symbol() -> &'static str;
-}
 
 #[derive(Clone, Copy, Debug)]
 pub struct Currency<T>(i64, PhantomData<T>)
@@ -16,9 +14,17 @@ where
 pub struct EUR;
 pub struct USD;
 
-impl CurrencyType for EUR {}
+impl CurrencyType for EUR {
+    fn formatter(raw_amount: i64) -> String {
+        format!("€ {:.2}", raw_amount as f64 / 100.0)
+    }
+}
 
-impl CurrencyType for USD {}
+impl CurrencyType for USD {
+    fn formatter(raw_amount: i64) -> String {
+        format!("$ {:.2}", raw_amount as f64 / 100.0)
+    }
+}
 
 impl CentCurrency for EUR {}
 
@@ -53,10 +59,10 @@ where
 
 impl<T> Display for Currency<T>
 where
-    T: PrependSymbolCurrency,
+    T: CurrencyType,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {:.2}", T::symbol(), self.0 as f64 / 100.0)
+        write!(f, "{}", T::formatter(self.0))
     }
 }
 
