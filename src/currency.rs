@@ -1,10 +1,11 @@
+use crate::exchange_rate::ExchangeRate;
 use std::{fmt::Display, marker::PhantomData};
 
 pub trait CurrencyType {
     fn formatter(raw_amount: i64) -> String;
 }
 
-trait CentCurrency: CurrencyType {}
+pub trait CentCurrency: CurrencyType {}
 
 #[derive(Clone, Copy, Debug)]
 pub struct Currency<T>(i64, PhantomData<T>)
@@ -36,6 +37,18 @@ where
 {
     fn new(value: i64) -> Self {
         Currency(value, PhantomData)
+    }
+}
+
+impl<F> Currency<F>
+where
+    F: CentCurrency,
+{
+    pub fn convert<T>(&self, rate: ExchangeRate<T, F>) -> Currency<T>
+    where
+        T: CentCurrency,
+    {
+        Currency::new((self.0 as f64 * rate.0).round() as i64)
     }
 }
 
@@ -92,5 +105,16 @@ mod tests {
         let amount = Currency::<USD>::from(amount);
 
         assert_eq!(format!("{}", amount), "$ 100.00");
+    }
+
+    #[test]
+    fn test_currency_convert() {
+        let amount = 100.00;
+        let amount = Currency::<EUR>::from(amount);
+
+        let rate = ExchangeRate::<USD, EUR>::new(1.2);
+        let us_amount = amount.convert(rate);
+
+        assert_eq!(format!("{}", us_amount), "$ 120.00");
     }
 }

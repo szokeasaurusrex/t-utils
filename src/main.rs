@@ -1,4 +1,5 @@
 mod currency;
+mod exchange_rate;
 mod transaction;
 
 use currency::{Currency, EUR, USD};
