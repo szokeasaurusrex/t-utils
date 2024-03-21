@@ -2,7 +2,7 @@ use std::{fmt::Display, marker::PhantomData};
 
 pub trait CurrencyType {}
 
-pub trait CentCurrency: CurrencyType {}
+trait CentCurrency: CurrencyType {}
 
 pub trait PrependSymbolCurrency: CurrencyType {
     fn symbol() -> &'static str;
@@ -24,18 +24,6 @@ impl CentCurrency for EUR {}
 
 impl CentCurrency for USD {}
 
-impl PrependSymbolCurrency for EUR {
-    fn symbol() -> &'static str {
-        "€"
-    }
-}
-
-impl PrependSymbolCurrency for USD {
-    fn symbol() -> &'static str {
-        "$"
-    }
-}
-
 impl<T> Currency<T>
 where
     T: CurrencyType,
@@ -54,11 +42,49 @@ where
     }
 }
 
+impl<T> From<i64> for Currency<T>
+where
+    T: CentCurrency,
+{
+    fn from(value: i64) -> Self {
+        Currency::new(value * 100)
+    }
+}
+
 impl<T> Display for Currency<T>
 where
     T: PrependSymbolCurrency,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {}", T::symbol(), self.0 as f64 / 100.0)
+        write!(f, "{} {:.2}", T::symbol(), self.0 as f64 / 100.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_currency() {
+        let amount = 123.45;
+        let amount = Currency::<EUR>::from(amount);
+
+        assert_eq!(format!("{}", amount), "€ 123.45");
+    }
+
+    #[test]
+    fn test_currency_usd() {
+        let amount = 100.00;
+        let amount = Currency::<USD>::from(amount);
+
+        assert_eq!(format!("{}", amount), "$ 100.00");
+    }
+
+    #[test]
+    fn test_currency_int() {
+        let amount = 100;
+        let amount = Currency::<USD>::from(amount);
+
+        assert_eq!(format!("{}", amount), "$ 100.00");
     }
 }
