@@ -8,6 +8,7 @@ pub trait PrependSymbolCurrency : CurrencyType {
     fn symbol() -> &'static str;
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Currency<T>(i64, PhantomData<T>)
     where T: CurrencyType;
 
