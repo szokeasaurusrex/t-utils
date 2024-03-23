@@ -3,7 +3,7 @@ use std::fmt::Display;
 use crate::currency::{Currency, CurrencyType, EUR};
 use chrono::NaiveDate;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Transaction<T>
 where
     T: CurrencyType,
@@ -18,6 +18,14 @@ where
 {
     pub fn new(date: NaiveDate, amount: Currency<T>) -> Self {
         Transaction { date, amount }
+    }
+
+    pub fn date(&self) -> &NaiveDate {
+        &self.date
+    }
+
+    pub fn amount(&self) -> &Currency<T> {
+        &self.amount
     }
 }
 
