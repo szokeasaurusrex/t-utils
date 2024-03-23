@@ -1,9 +1,10 @@
 use std::fmt::Display;
 
-use crate::conversions::currency::{Currency, CurrencyType, EUR};
+use crate::conversions::currency::{Currency, CurrencyType};
 use chrono::NaiveDate;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Transaction<T>
 where
     T: CurrencyType,
@@ -41,6 +42,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::conversions::currency::{Currency, EUR};
 
     #[test]
     fn test_transaction() {

@@ -1,6 +1,8 @@
 use std::{fmt::Display, marker::PhantomData};
 
-pub trait CurrencyType {
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+pub trait CurrencyType: core::fmt::Debug {
     fn formatter(raw_amount: i64) -> String;
 
     /// The factor to store the currency amount in the struct.
@@ -12,10 +14,10 @@ pub struct Currency<T>(i64, PhantomData<T>)
 where
     T: CurrencyType;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EUR;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct USD;
 
 impl CurrencyType for EUR {
@@ -35,6 +37,31 @@ impl CurrencyType for USD {
 
     fn store_factor() -> f64 {
         100.0
+    }
+}
+
+impl<'de, T> Deserialize<'de> for Currency<T>
+where
+    T: CurrencyType,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Currency<T>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let amount = f64::deserialize(deserializer)?;
+        Ok(Currency::from(amount))
+    }
+}
+
+impl<T> Serialize for Currency<T>
+where
+    T: CurrencyType,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_f64(self.0 as f64 / T::store_factor())
     }
 }
 
@@ -106,14 +133,36 @@ mod tests {
         assert_eq!(format!("{}", amount), "$ 100.00");
     }
 
-    // #[test]
-    // fn test_currency_convert() {
-    //     let amount = 100.00;
-    //     let amount = Currency::<EUR>::from(amount);
+    #[test]
+    fn test_currency_deserialize() {
+        let csv = "amount\n123.45";
+        let amount: Currency<EUR> = csv::Reader::from_reader(csv.as_bytes())
+            .deserialize()
+            .next()
+            .unwrap()
+            .unwrap();
+        assert_eq!(format!("{}", amount), "€ 123.45");
+    }
 
-    //     let rate = ExchangeRate::<USD, EUR>::new(1.2);
-    //     let us_amount = amount.convert(rate);
+    #[test]
+    fn test_currency_deserialize_int() {
+        let csv = "amount\n100";
+        let amount: Currency<USD> = csv::Reader::from_reader(csv.as_bytes())
+            .deserialize()
+            .next()
+            .unwrap()
+            .unwrap();
+        assert_eq!(format!("{}", amount), "$ 100.00");
+    }
 
-    //     assert_eq!(format!("{}", us_amount), "$ 120.00");
-    // }
+    #[test]
+    fn test_currency_serialize() {
+        let amount = Currency::<EUR>::from(123.45);
+        let mut wtr = csv::Writer::from_writer(vec![]);
+        wtr.serialize(amount).unwrap();
+        assert_eq!(
+            String::from_utf8(wtr.into_inner().unwrap()).unwrap(),
+            "123.45\n"
+        );
+    }
 }

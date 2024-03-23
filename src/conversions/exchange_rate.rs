@@ -1,11 +1,13 @@
+use serde::{Deserialize, Serialize};
+
 use crate::conversions::currency::{Currency, CurrencyType};
 use std::marker::PhantomData;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ExchangeRate<N, D>(
     f64,
-    std::marker::PhantomData<N>,
-    std::marker::PhantomData<D>,
+    #[serde(skip)] std::marker::PhantomData<N>,
+    #[serde(skip)] std::marker::PhantomData<D>,
 )
 where
     N: CurrencyType,
