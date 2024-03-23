@@ -1,4 +1,4 @@
-use crate::currency::{Currency, CurrencyType};
+use crate::conversions::currency::{Currency, CurrencyType};
 use std::marker::PhantomData;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -36,7 +36,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::currency::{EUR, USD};
+    use crate::conversions::currency::{EUR, USD};
 
     #[derive(Debug, Eq, PartialEq)]
     struct USC;

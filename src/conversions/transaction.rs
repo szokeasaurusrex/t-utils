@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::currency::{Currency, CurrencyType, EUR};
+use crate::conversions::currency::{Currency, CurrencyType, EUR};
 use chrono::NaiveDate;
 
 #[derive(Clone, Debug, Eq, PartialEq)]

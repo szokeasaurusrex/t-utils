@@ -4,9 +4,9 @@ use std::fmt::Display;
 
 use chrono::NaiveDate;
 
-use crate::currency::CurrencyType;
-use crate::exchange_rate::ExchangeRate;
-use crate::transaction::Transaction;
+use crate::conversions::currency::CurrencyType;
+use crate::conversions::exchange_rate::ExchangeRate;
+use crate::conversions::transaction::Transaction;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum ConversionError {
@@ -55,7 +55,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::currency::{Currency, EUR, USD};
+    use crate::conversions::currency::{Currency, EUR, USD};
 
     #[test]
     fn test_daily_exchange_rates() {

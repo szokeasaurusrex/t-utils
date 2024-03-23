@@ -1,9 +1,6 @@
-mod currency;
-mod daily_exchange_rates;
-mod exchange_rate;
-mod transaction;
+mod conversions;
 
-use currency::{Currency, EUR, USD};
+use conversions::currency::{Currency, EUR, USD};
 
 fn main() {
     let amount = 123.45;
