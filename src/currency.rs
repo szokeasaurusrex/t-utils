@@ -1,13 +1,13 @@
-use crate::exchange_rate::ExchangeRate;
 use std::{fmt::Display, marker::PhantomData};
 
 pub trait CurrencyType {
     fn formatter(raw_amount: i64) -> String;
+
+    /// The factor to store the currency amount in the struct.
+    fn store_factor() -> f64;
 }
 
-pub trait CentCurrency: CurrencyType {}
-
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Currency<T>(i64, PhantomData<T>)
 where
     T: CurrencyType;
@@ -22,54 +22,50 @@ impl CurrencyType for EUR {
     fn formatter(raw_amount: i64) -> String {
         format!("€ {:.2}", raw_amount as f64 / 100.0)
     }
+
+    fn store_factor() -> f64 {
+        100.0
+    }
 }
 
 impl CurrencyType for USD {
     fn formatter(raw_amount: i64) -> String {
         format!("$ {:.2}", raw_amount as f64 / 100.0)
     }
+
+    fn store_factor() -> f64 {
+        100.0
+    }
 }
-
-impl CentCurrency for EUR {}
-
-impl CentCurrency for USD {}
 
 impl<T> Currency<T>
 where
     T: CurrencyType,
 {
-    fn new(value: i64) -> Self {
-        Currency(value, PhantomData)
+    pub fn from_raw_amount(raw_amount: i64) -> Self {
+        Currency(raw_amount, PhantomData)
     }
-}
 
-impl<F> Currency<F>
-where
-    F: CentCurrency,
-{
-    pub fn convert<T>(&self, rate: ExchangeRate<T, F>) -> Currency<T>
-    where
-        T: CentCurrency,
-    {
-        Currency::new((self.0 as f64 * rate.0).round() as i64)
+    pub fn raw_amount(&self) -> i64 {
+        self.0
     }
 }
 
 impl<T> From<f64> for Currency<T>
 where
-    T: CentCurrency,
+    T: CurrencyType,
 {
     fn from(value: f64) -> Self {
-        Currency::new((value * 100.0) as i64)
+        Currency::from_raw_amount((value * T::store_factor()) as i64)
     }
 }
 
 impl<T> From<i64> for Currency<T>
 where
-    T: CentCurrency,
+    T: CurrencyType,
 {
     fn from(value: i64) -> Self {
-        Currency::new(value * 100)
+        Currency::from_raw_amount(value * T::store_factor() as i64)
     }
 }
 
@@ -110,14 +106,14 @@ mod tests {
         assert_eq!(format!("{}", amount), "$ 100.00");
     }
 
-    #[test]
-    fn test_currency_convert() {
-        let amount = 100.00;
-        let amount = Currency::<EUR>::from(amount);
+    // #[test]
+    // fn test_currency_convert() {
+    //     let amount = 100.00;
+    //     let amount = Currency::<EUR>::from(amount);
 
-        let rate = ExchangeRate::<USD, EUR>::new(1.2);
-        let us_amount = amount.convert(rate);
+    //     let rate = ExchangeRate::<USD, EUR>::new(1.2);
+    //     let us_amount = amount.convert(rate);
 
-        assert_eq!(format!("{}", us_amount), "$ 120.00");
-    }
+    //     assert_eq!(format!("{}", us_amount), "$ 120.00");
+    // }
 }
