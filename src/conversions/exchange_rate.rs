@@ -30,7 +30,7 @@ where
         ExchangeRate(1.0 / self.0, PhantomData, PhantomData)
     }
 
-    pub fn convert(&self, from_amount: &Currency<D>) -> Currency<N> {
+    pub fn convert(&self, from_amount: Currency<D>) -> Currency<N> {
         Currency::from_raw_amount((from_amount.raw_amount() as f64 * self.0).round() as i64)
     }
 }
@@ -40,7 +40,7 @@ mod tests {
     use super::*;
     use crate::conversions::currency::{EUR, USD};
 
-    #[derive(Debug, Eq, PartialEq)]
+    #[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize)]
     struct USC;
 
     impl CurrencyType for USC {
@@ -65,6 +65,6 @@ mod tests {
         let rate = ExchangeRate::<USC, USD>::new(100.0);
         let amount = Currency::<USD>::from(100);
 
-        assert_eq!(rate.convert(&amount), Currency::<USC>::from(10000));
+        assert_eq!(rate.convert(amount), Currency::<USC>::from(10000));
     }
 }

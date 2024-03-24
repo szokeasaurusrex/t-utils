@@ -2,7 +2,7 @@ use std::{fmt::Display, marker::PhantomData};
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-pub trait CurrencyType: core::fmt::Debug {
+pub trait CurrencyType: core::fmt::Debug + Serialize + Copy {
     fn formatter(raw_amount: i64) -> String;
 
     /// The factor to store the currency amount in the struct.
@@ -14,10 +14,10 @@ pub struct Currency<T>(i64, PhantomData<T>)
 where
     T: CurrencyType;
 
-#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EUR;
 
-#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct USD;
 
 impl CurrencyType for EUR {

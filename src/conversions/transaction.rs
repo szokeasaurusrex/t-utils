@@ -25,8 +25,8 @@ where
         &self.date
     }
 
-    pub fn amount(&self) -> &Currency<T> {
-        &self.amount
+    pub fn amount(&self) -> Currency<T> {
+        self.amount
     }
 }
 

@@ -4,13 +4,13 @@ use std::fmt::Display;
 
 use chrono::NaiveDate;
 use csv::Reader;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::conversions::currency::CurrencyType;
 use crate::conversions::exchange_rate::ExchangeRate;
 use crate::conversions::transaction::Transaction;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub enum ConversionError {
     MissingExchangeRate,
 }
@@ -49,11 +49,11 @@ where
     N: CurrencyType + for<'de> Deserialize<'de>,
     D: CurrencyType + for<'de> Deserialize<'de>,
 {
-    fn day_rate(&self, date: &NaiveDate) -> Option<&ExchangeRate<N, D>> {
+    pub fn day_rate(&self, date: &NaiveDate) -> Option<&ExchangeRate<N, D>> {
         self.rates.get(&date)
     }
 
-    pub fn convert(&self, transaction: Transaction<D>) -> Result<Transaction<N>, ConversionError> {
+    pub fn convert(&self, transaction: &Transaction<D>) -> Result<Transaction<N>, ConversionError> {
         let rate = self
             .day_rate(transaction.date())
             .ok_or(ConversionError::MissingExchangeRate)?;
@@ -127,7 +127,7 @@ mod tests {
         let transaction = Transaction::new(date, amount);
 
         assert_eq!(
-            daily_rates.convert(transaction),
+            daily_rates.convert(&transaction),
             Ok(Transaction::new(date, Currency::<EUR>::from(80)))
         );
 
@@ -136,7 +136,7 @@ mod tests {
         let transaction = Transaction::new(date, amount);
 
         assert_eq!(
-            daily_rates.convert(transaction),
+            daily_rates.convert(&transaction),
             Err(ConversionError::MissingExchangeRate)
         );
 
@@ -145,7 +145,7 @@ mod tests {
         let transaction = Transaction::new(date, amount);
 
         assert_eq!(
-            daily_rates.convert(transaction),
+            daily_rates.convert(&transaction),
             Ok(Transaction::new(date, Currency::<EUR>::from(90)))
         );
     }
