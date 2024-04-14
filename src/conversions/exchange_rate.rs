@@ -1,13 +1,13 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::conversions::currency::{Currency, CurrencyType};
 use std::marker::PhantomData;
 
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ExchangeRate<N, D>(
     f64,
-    #[serde(skip)] std::marker::PhantomData<N>,
-    #[serde(skip)] std::marker::PhantomData<D>,
+    std::marker::PhantomData<N>,
+    std::marker::PhantomData<D>,
 )
 where
     N: CurrencyType,
@@ -26,6 +26,10 @@ where
         )
     }
 
+    pub fn rate(&self) -> f64 {
+        self.0 * D::store_factor() / N::store_factor()
+    }
+
     pub fn invert(&self) -> ExchangeRate<D, N> {
         ExchangeRate(1.0 / self.0, PhantomData, PhantomData)
     }
@@ -35,10 +39,38 @@ where
     }
 }
 
+impl<'de, N, D> Deserialize<'de> for ExchangeRate<N, D>
+where
+    N: CurrencyType,
+    D: CurrencyType,
+{
+    fn deserialize<De>(deserializer: De) -> Result<ExchangeRate<N, D>, De::Error>
+    where
+        De: Deserializer<'de>,
+    {
+        let rate = f64::deserialize(deserializer)?;
+        Ok(ExchangeRate::new(rate))
+    }
+}
+
+impl<N, D> Serialize for ExchangeRate<N, D>
+where
+    N: CurrencyType,
+    D: CurrencyType,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.rate().serialize(serializer)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::conversions::currency::{EUR, USD};
+    use csv::{Reader, Writer};
 
     #[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize)]
     struct USC;
@@ -66,5 +98,29 @@ mod tests {
         let amount = Currency::<USD>::from(100);
 
         assert_eq!(rate.convert(amount), Currency::<USC>::from(10000));
+    }
+
+    #[test]
+    fn test_rate_deserialize() {
+        let csv = "rate\n0.8\n";
+        let rate: ExchangeRate<EUR, USD> = Reader::from_reader(csv.as_bytes())
+            .deserialize()
+            .next()
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(rate, ExchangeRate(0.8, PhantomData, PhantomData));
+    }
+
+    #[test]
+    fn test_rate_deserialize_usc() {
+        let csv = "rate\n100\n";
+        let rate: ExchangeRate<USC, USD> = Reader::from_reader(csv.as_bytes())
+            .deserialize()
+            .next()
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(rate, ExchangeRate(1.0, PhantomData, PhantomData));
     }
 }
