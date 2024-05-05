@@ -1,0 +1,7 @@
+Trades,Header,DataDiscriminator,Asset Category,Currency,Account,Symbol,Date/Time,Exchange,Quantity,T. Price,Proceeds,Comm/Fee,Basis,Realized P/L,Code
+Trades,Data,Order,Stocks,USD,Test,TST,"2023-01-01, 12:00:00",-,2.0000,10.00,-20.00,0,20.00,0,FrX;O
+Trades,Data,Trade,Stocks,USD,Test,TST,"2023-01-01, 12:00:00",ZERO,2.0000,10.00,-20.00,0,20.00,0,FrX;O
+Trades,Data,Order,Stocks,USD,Test,TST,"2023-07-10, 12:00:00",-,-3.0000,12.00,36.00,0,31.00,5.00,C;FrX;P
+Trades,Data,Trade,Stocks,USD,Test,TST,"2023-07-10, 12:00:00",ZERO,-3.0000,12.00,36.00,0,31.00,5.00,C;FrX;P
+Trades,Data,ClosedLot,Stocks,USD,Test,TST,2023-04-02,,1.0000,11.00,,,11.00,1.00,ST
+Trades,Data,ClosedLot,Stocks,USD,Test,TST,2023-02-04,,2.0000,10.00,,,22.00,4.00,ST
