@@ -4,7 +4,9 @@ use clap::{Parser, Subcommand};
 
 mod commands;
 mod conversions;
+mod currency;
 mod io;
+mod trades;
 
 /// Simple CLI tool to help with currency conversions.
 #[derive(Debug, Parser)]

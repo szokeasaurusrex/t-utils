@@ -70,7 +70,7 @@ where
 mod tests {
     use super::*;
     use crate::conversions::currency::{EUR, USD};
-    use csv::{Reader, Writer};
+    use csv::Reader;
 
     #[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize)]
     struct USC;

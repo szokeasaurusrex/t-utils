@@ -7,27 +7,27 @@ use serde::{de::Error, Deserialize, Deserializer};
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct IbkrInputLine {
     #[serde(rename = "DataDiscriminator")]
-    data_discriminator: String,
+    pub data_discriminator: String,
     #[serde(rename = "Currency")]
-    currency: String,
+    pub currency: String,
     #[serde(rename = "Symbol")]
-    symbol: String,
+    pub symbol: String,
     #[serde(rename = "Date/Time")]
     #[serde(deserialize_with = "parse_ibkr_date_time")]
-    date: NaiveDate,
+    pub date: NaiveDate,
     #[serde(rename = "Quantity")]
-    quantity: f64,
+    pub quantity: f64,
     #[serde(rename = "T. Price")]
-    t_price: f64,
+    pub t_price: f64,
     #[serde(rename = "Proceeds")]
-    proceeds: Option<f64>,
+    pub proceeds: Option<f64>,
     #[serde(rename = "Basis")]
-    basis: f64,
+    pub basis: f64,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct IbkrInput {
-    lines: Vec<IbkrInputLine>,
+    pub lines: Vec<IbkrInputLine>,
 }
 
 impl IbkrInput {
@@ -37,10 +37,6 @@ impl IbkrInput {
     {
         let lines = read_ibkr_trades(reader)?;
         Ok(IbkrInput { lines })
-    }
-
-    pub fn lines(&self) -> &[IbkrInputLine] {
-        &self.lines
     }
 }
 
