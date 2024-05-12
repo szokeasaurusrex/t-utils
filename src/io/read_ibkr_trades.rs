@@ -25,7 +25,26 @@ pub struct IbkrInputLine {
     basis: f64,
 }
 
-pub fn read_ibkr_trades<R>(reader: &mut Reader<R>) -> Result<Vec<IbkrInputLine>, csv::Error>
+#[derive(Debug, PartialEq)]
+pub struct IbkrInput {
+    lines: Vec<IbkrInputLine>,
+}
+
+impl IbkrInput {
+    pub fn read_from<R>(reader: &mut Reader<R>) -> Result<Self, csv::Error>
+    where
+        R: Read,
+    {
+        let lines = read_ibkr_trades(reader)?;
+        Ok(IbkrInput { lines })
+    }
+
+    pub fn lines(&self) -> &[IbkrInputLine] {
+        &self.lines
+    }
+}
+
+fn read_ibkr_trades<R>(reader: &mut Reader<R>) -> Result<Vec<IbkrInputLine>, csv::Error>
 where
     R: Read,
 {
@@ -51,73 +70,75 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_read_ibkr_trades() {
+    fn test_read_from() {
         let mut reader = Reader::from_path("test_files/test_ibkr.csv").unwrap();
-        let trades = read_ibkr_trades(&mut reader).unwrap();
+        let trades = IbkrInput::read_from(&mut reader).unwrap();
         assert_eq!(
             trades,
-            vec![
-                IbkrInputLine {
-                    data_discriminator: "Order".into(),
-                    currency: "USD".into(),
-                    symbol: "TST".into(),
-                    date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
-                    quantity: 2.0,
-                    t_price: 10.0,
-                    proceeds: Some(-20.0),
-                    basis: 20.0
-                },
-                IbkrInputLine {
-                    data_discriminator: "Trade".into(),
-                    currency: "USD".into(),
-                    symbol: "TST".into(),
-                    date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
-                    quantity: 2.0,
-                    t_price: 10.0,
-                    proceeds: Some(-20.0),
-                    basis: 20.0
-                },
-                IbkrInputLine {
-                    data_discriminator: "Order".into(),
-                    currency: "USD".into(),
-                    symbol: "TST".into(),
-                    date: NaiveDate::from_ymd_opt(2023, 7, 10).unwrap(),
-                    quantity: -3.0,
-                    t_price: 12.0,
-                    proceeds: Some(36.0),
-                    basis: 31.0
-                },
-                IbkrInputLine {
-                    data_discriminator: "Trade".into(),
-                    currency: "USD".into(),
-                    symbol: "TST".into(),
-                    date: NaiveDate::from_ymd_opt(2023, 7, 10).unwrap(),
-                    quantity: -3.0,
-                    t_price: 12.0,
-                    proceeds: Some(36.0),
-                    basis: 31.0
-                },
-                IbkrInputLine {
-                    data_discriminator: "ClosedLot".into(),
-                    currency: "USD".into(),
-                    symbol: "TST".into(),
-                    date: NaiveDate::from_ymd_opt(2023, 4, 2).unwrap(),
-                    quantity: 1.0,
-                    t_price: 11.0,
-                    proceeds: None,
-                    basis: 11.0
-                },
-                IbkrInputLine {
-                    data_discriminator: "ClosedLot".into(),
-                    currency: "USD".into(),
-                    symbol: "TST".into(),
-                    date: NaiveDate::from_ymd_opt(2023, 2, 4).unwrap(),
-                    quantity: 2.0,
-                    t_price: 10.0,
-                    proceeds: None,
-                    basis: 22.0
-                },
-            ]
+            IbkrInput {
+                lines: vec![
+                    IbkrInputLine {
+                        data_discriminator: "Order".into(),
+                        currency: "USD".into(),
+                        symbol: "TST".into(),
+                        date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
+                        quantity: 2.0,
+                        t_price: 10.0,
+                        proceeds: Some(-20.0),
+                        basis: 20.0
+                    },
+                    IbkrInputLine {
+                        data_discriminator: "Trade".into(),
+                        currency: "USD".into(),
+                        symbol: "TST".into(),
+                        date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
+                        quantity: 2.0,
+                        t_price: 10.0,
+                        proceeds: Some(-20.0),
+                        basis: 20.0
+                    },
+                    IbkrInputLine {
+                        data_discriminator: "Order".into(),
+                        currency: "USD".into(),
+                        symbol: "TST".into(),
+                        date: NaiveDate::from_ymd_opt(2023, 7, 10).unwrap(),
+                        quantity: -3.0,
+                        t_price: 12.0,
+                        proceeds: Some(36.0),
+                        basis: 31.0
+                    },
+                    IbkrInputLine {
+                        data_discriminator: "Trade".into(),
+                        currency: "USD".into(),
+                        symbol: "TST".into(),
+                        date: NaiveDate::from_ymd_opt(2023, 7, 10).unwrap(),
+                        quantity: -3.0,
+                        t_price: 12.0,
+                        proceeds: Some(36.0),
+                        basis: 31.0
+                    },
+                    IbkrInputLine {
+                        data_discriminator: "ClosedLot".into(),
+                        currency: "USD".into(),
+                        symbol: "TST".into(),
+                        date: NaiveDate::from_ymd_opt(2023, 4, 2).unwrap(),
+                        quantity: 1.0,
+                        t_price: 11.0,
+                        proceeds: None,
+                        basis: 11.0
+                    },
+                    IbkrInputLine {
+                        data_discriminator: "ClosedLot".into(),
+                        currency: "USD".into(),
+                        symbol: "TST".into(),
+                        date: NaiveDate::from_ymd_opt(2023, 2, 4).unwrap(),
+                        quantity: 2.0,
+                        t_price: 10.0,
+                        proceeds: None,
+                        basis: 22.0
+                    },
+                ]
+            }
         )
     }
 }
