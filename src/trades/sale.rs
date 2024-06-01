@@ -21,6 +21,7 @@ pub struct IbkrSale {
     currency: Currency,
     symbol: String,
     date: NaiveDate,
+    quantity: f64,
     t_price: f64,
     proceeds: f64,
     closed_lots: Vec<ClosedLot>,
@@ -99,6 +100,7 @@ impl IbkrSale {
             currency: trade.currency.parse().expect("Infallible"),
             symbol: trade.symbol.clone(),
             date: trade.date,
+            quantity: trade.quantity,
             t_price: trade.t_price,
             proceeds: trade.proceeds.ok_or(IbkrSaleError::TradeMissingProceeds)?,
             closed_lots,
@@ -196,6 +198,7 @@ mod tests {
                 currency: Currency::USD,
                 symbol: "TST".into(),
                 date: NaiveDate::from_ymd_opt(2023, 1, 4).unwrap(),
+                quantity: 2.0,
                 t_price: 11.0,
                 proceeds: 22.0,
                 closed_lots: vec![ClosedLot {
@@ -254,6 +257,7 @@ mod tests {
                 currency: Currency::USD,
                 symbol: "TST".into(),
                 date: NaiveDate::from_ymd_opt(2023, 1, 4).unwrap(),
+                quantity: 3.0,
                 t_price: 11.0,
                 proceeds: 33.0,
                 closed_lots: vec![
@@ -340,6 +344,7 @@ mod tests {
                 currency: Currency::USD,
                 symbol: "TST".into(),
                 date: NaiveDate::from_ymd_opt(2023, 1, 4).unwrap(),
+                quantity: 2.0,
                 t_price: 11.0,
                 proceeds: 22.0,
                 closed_lots: vec![ClosedLot {
@@ -356,6 +361,7 @@ mod tests {
                 currency: Currency::USD,
                 symbol: "TST".into(),
                 date: NaiveDate::from_ymd_opt(2023, 1, 4).unwrap(),
+                quantity: 3.0,
                 t_price: 11.0,
                 proceeds: 33.0,
                 closed_lots: vec![
